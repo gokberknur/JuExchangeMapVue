@@ -1,43 +1,95 @@
 <template>
-<div>
-  
-  
-   <div class="container mt-3 mt-sm-5" id="app">
-  <div class="row">
-    <div class="col-md-9">
-      <div class="map" id="map" style="height:800px;"></div>
+<div id="app">
+  <div class="map" id="map"></div>
+     <el-row class=" top-area">
+        <el-col 
+        class="logo-area"
+        :span="6">            
+        </el-col>
+        <el-col 
+        class="filter-area"
+        :span="18"
+        >
+          <div 
+          class="filter-selection-area">
+            <el-dropdown >
+              <span class="filter-catergori-item">Country <i class="el-icon-arrow-down el-icon--right"></i></span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item>Filter A</el-dropdown-item>
+                <el-dropdown-item>Filter B</el-dropdown-item>
+                <el-dropdown-item>Filter C</el-dropdown-item>
+                <el-dropdown-item>Filter D</el-dropdown-item>
+                <el-dropdown-item>Filter E</el-dropdown-item>
+              </el-dropdown-menu>  
+            </el-dropdown>
+            <el-dropdown >
+              <span class="filter-catergori-item">Semester <i class="el-icon-arrow-down el-icon--right"></i></span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item>Filter A</el-dropdown-item>
+                <el-dropdown-item>Filter B</el-dropdown-item>
+                <el-dropdown-item>Filter C</el-dropdown-item>
+                <el-dropdown-item>Filter D</el-dropdown-item>
+                <el-dropdown-item>Filter E</el-dropdown-item>
+              </el-dropdown-menu>  
+            </el-dropdown> 
+            <el-dropdown >
+              <span class="filter-catergori-item">Faculty <i class="el-icon-arrow-down el-icon--right"></i></span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item>Filter A</el-dropdown-item>
+                <el-dropdown-item>Filter B</el-dropdown-item>
+                <el-dropdown-item>Filter C</el-dropdown-item>
+                <el-dropdown-item>Filter D</el-dropdown-item>
+                <el-dropdown-item>Filter E</el-dropdown-item>
+              </el-dropdown-menu>  
+            </el-dropdown> 
+            <el-dropdown >
+              <span class="filter-catergori-item">Fit <i class="el-icon-arrow-down el-icon--right"></i></span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item>Filter A</el-dropdown-item>
+                <el-dropdown-item>Filter B</el-dropdown-item>
+                <el-dropdown-item>Filter C</el-dropdown-item>
+                <el-dropdown-item>Filter D</el-dropdown-item>
+                <el-dropdown-item>Filter E</el-dropdown-item>
+              </el-dropdown-menu>  
+            </el-dropdown>   
+          </div>  
+        </el-col>
+    </el-row>
+    <FilterList/>
+    <DetailView/>
+      <div class="dev-box">
+        <h2>Dev Box</h2>
+        <div
+          class="dev-list"
+          v-for="layer in layers"
+          :key="layer.id"
+        >
+        <label class="menu-list">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              v-model="layer.active"
+              @change="layerChanged(layer.id, layer.active)"
+            />
+            {{ layer.name }}
+          </label>
+        </div>
+       </div> 
+</div>       
 
-    </div>
-    <div class="col-md-3">
-      <div
-        class="menu list"
-        v-for="layer in layers"
-        :key="layer.id"
-      >
-        <label class="menu list">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            v-model="layer.active"
-            @change="layerChanged(layer.id, layer.active)"
-          />
-          {{ layer.name }}
-        </label>
-        
-      </div>
-    </div>
-  </div>
-</div>
-       
-</div>
 </template>
 
 <script>
-  import data from './city.json'
+  import data from './API/city.json'
+  import universitydata from'./API/universities.json'
   import L from 'leaflet'
   import 'leaflet/dist/leaflet.css'
-  import universitydata from './universities.json'
 
+  //Components
+  import FilterList from './components/filterList.vue'
+  import DetailView from './components/detailView.vue'
+  
+  
   delete L.Icon.Default.prototype._getIconUrl
 
 L.Icon.Default.mergeOptions({
@@ -47,6 +99,9 @@ L.Icon.Default.mergeOptions({
 })
 export default {
   name: 'app',
+  components:{
+    FilterList, DetailView
+  },
   data () {
     return {
     map: null,
@@ -337,7 +392,100 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+/*@import './assets/scss/variables.scss';*/
+
+  #map{
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .dev-box{
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    bottom: 1%;
+    right: 1%;
+    height: fit-content;
+    width: 250px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 15px;
+    box-shadow: 0px 0px 41px -2px rgba(0,0,0,0.5);
+
+    h2{
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .dev-list{
+      margin: 10px 25px;
+    }
+  }
+
+  .top-area{
+    position: fixed;
+    left: 1%;
+    top: 1%;
+    height: fit-content;
+    width: 100vw;
+  }
+
+  .filter-area{
+    margin: 0 10px;
+
+    .filter-selection-area{
+      position: fixed;
+      right: 1%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-evenly;
+      width: 55%;
+      height: fit-content;
+      padding: 25px;
+      background-color: rgba(255, 255, 255, 0.7);
+      border-radius: 15px;
+      box-shadow: 0px 0px 41px -2px rgba(0,0,0,0.5);
+      color: #000;
 
 
+        .filter-catergori-item{
+          font-size: 1.8em;
+          font-weight: 700;
+          color: #000;
+        }
+
+        &:hover{
+          background-color: #774299;
+          
+          .filter-catergori-item{
+            color: #fff;
+          }    
+        }
+
+        &:before{
+          background-image: -moz-element();
+        }
+
+    }
+   
+  }
+
+  
+
+  /*Element UI custom styling*/
+  .el-dropdown-menu{
+    top: 100px !important;
+    background-color: #774299 !important;
+  }
+
+  .el-dropdown-menu__item{
+    color: #fff !important;
+  }
+
+  .el-dropdown-menu__item:hover{
+    background-color: #522e69 !important;
+  }  
 </style>
