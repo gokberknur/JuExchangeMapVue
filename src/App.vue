@@ -24,19 +24,68 @@
           {{ layer.name }}
         </label>
         
+        
       </div>
+      <div class="filter options"> 
+      <label class ="dropdown menu"> 
+        <select> 
+          
+          </select>
+          
+        </label>
+        
+        </div>
+              <multiselect 
+              :multiple="true"
+              v-model="selectedCountry"
+              :options="countries"
+              
+              placeholder="select country"
+              label="country" 
+              track-by="country"
+              
+             >
+             </multiselect>
+
+             <multiselect 
+              :multiple="true"
+              v-model="selectedUniversity"
+              :options="universities"
+              placeholder="select Uni"
+              label="name" 
+              track-by="name"
+             >
+             </multiselect>
+
+              <multiselect 
+              :multiple="true"
+              v-model="selectedProgramme"
+              :options="programmes"
+              placeholder="select program"
+              label="title" 
+              track-by="title"
+             >
+             </multiselect>
+            
     </div>
   </div>
 </div>
        
 </div>
+
 </template>
 
 <script>
+
+  import Multiselect from 'vue-multiselect'
+
   import data from './city.json'
   import L from 'leaflet'
   import 'leaflet/dist/leaflet.css'
   import universitydata from './universities.json'
+  import countrydata from './country.json'
+  import programdata from './program.json'
+  import {hello} from './hi.js'
 
   delete L.Icon.Default.prototype._getIconUrl
 
@@ -47,13 +96,26 @@ L.Icon.Default.mergeOptions({
 })
 export default {
   name: 'app',
+  components: {
+    Multiselect
+  },
   data () {
     return {
+      selectedCountry: null,
+      selectedUniversity: null,
+      selectedProgramme: null,
+
     map: null,
     tileLayer: null,
     newdata: null,
+    currentMarkers: null,
+    
     cities: data.city,
+    countries: countrydata.countryArray,
     universities: universitydata.university,
+    programmes: programdata.programme,
+
+    filteredUniList: [],
     layers: 
     
     [
@@ -291,12 +353,51 @@ export default {
   mounted() {
     this.initMap();
     this.initLayers();
-    
+    hello();
+    //this.initUniversityMarkers();
+    //this.convertToArray();
   },
+  
+computed: {
+
+
+},
   methods: {
+    
+      updateAfterCountry(valueOfSelectedCountry){
+        if(valueOfSelectedCountry){
+         this.filteredUniList = [];
+        }
+        else{
+           this.filteredUniList = [];
+           this.filteredUniList= universitydata.university;
+        }
+      console.log(valueOfSelectedCountry);
+      //we have to use arrow function here for using this keyword for accesing data.
+      // without arrow function "this" keyword won't work. FUCKING JS
+           this.selectedCountry.forEach((element) => {
+            universitydata.university.forEach((unielement)=>{
+              if(unielement.country == element.country) {
+                this.filteredUniList.push(unielement)
+              console.log("pass");
+            }
+
+          });
+               console.log(this.filteredUniList);
+      });
+     // addtoMap();
+         /* this.selectedUniversity.forEach((element) => {
+          element.leafletObject.addTo(this.map);
+          console.log(element.coords);
+      });*/
+      
+      },
+
       layerChanged(layerId, active) {
       const layer = this.layers.find(layer => layer.id === layerId);
       
+      
+
       layer.features.forEach((feature) => {
         if (active) {
           feature.leafletObject.addTo(this.map);
@@ -304,12 +405,74 @@ export default {
           feature.leafletObject.removeFrom(this.map);
         }
       });
+      
     },
+   
+    convertToArray(){
+      this.countries = this.countries.map(obj => {
+      return obj.country;
+    });
+
+    this.universities =this.universities.map(obj=>{
+      return obj;
+    });
+    },
+    
+    initUniversityMarkers() {
+        //This function adds leaflet Object attribute to all universities
+        // and clears the map for the filtering new markers
+       
+        this.universities.forEach((uni) => {  
+        const unimarkers = this.universities.filter(unis => unis.type === "marker");
+      
+        unimarkers.forEach((element) => {
+        element.leafletObject = L.marker(element.coords)
+        .bindPopup(element.name);
+          element.leafletObject.removeFrom(this.map);   
+           //console.log(this.map._layers);
+         
+          
+          // element.leafletObject.addTo(this.map);
+          });
+        });
+
+    },
+
+    addMarkers(){
+      
+      if(this.currentMarkers != null){
+           /* this.currentMarkers.forEach((element) => {
+            this.currentMarkers.removeFrom(this.map);
+            console.log(this.currentMarkers);
+        });*/
+       
+            this.currentMarkers = null;
+      }
+      else
+      {
+      
+      this.filteredUniList.forEach((uni) => {
+        uni.leafletObject = L.marker(uni.coords)
+        .bindPopup(uni.name)
+        uni.leafletObject.addTo(this.map);
+        this.currentMarkers = uni.leafletObject;
+      });   
+      }
+    },
+
+   
+    //this runs with mounted, so this has to be done with uni list i guess for markers
     initLayers() {
+
+       
+
       this.layers.forEach((layer) => {
         const markerFeatures = layer.features.filter(feature => feature.type === 'marker');
+        
         const polygonFeatures = layer.features.filter(feature => feature.type === 'polygon');
         
+        
+
         markerFeatures.forEach((feature) => {
           feature.leafletObject = L.marker(feature.coords)
             .bindPopup(feature.name);
@@ -321,6 +484,7 @@ export default {
         });
       });
     },
+
     initMap() {
       this.map = L.map('map').setView([38.63, -90.23], 3);
       this.tileLayer = L.tileLayer(
@@ -334,8 +498,32 @@ export default {
       this.tileLayer.addTo(this.map);
     },
   },
+  watch: {
+  selectedCountry: 
+            
+            function(valueOfSelectedCountry){
+             
+            this.updateAfterCountry(valueOfSelectedCountry);
+            this.initUniversityMarkers();
+           
+            this.addMarkers();
+      //when selected country value changes, do the updates
+      // change universities for example, according to their countries.
+      
+  },
+
+ filteredUniList: 
+          function() {
+
+          }
+    
+  
+},
+
 }
+
 </script>
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 
 <style>
 
