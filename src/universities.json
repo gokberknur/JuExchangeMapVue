@@ -10,7 +10,9 @@
             "country": "Austria",
             "city": "Salzburg",
             "City_Id": null,
-            "Country_Id": null
+            "Country_Id": null,
+            "coords": ["38.7709607", "-91.2050322"],
+            "type": "marker"
         },
         {
             "Id": "2",
@@ -22,7 +24,9 @@
             "country": "Austria",
             "city": "Graz",
             "City_Id": "3",
-            "Country_Id": "4"
+            "Country_Id": "4",
+            "coords": ["38.6109607", "-90.2050322"],
+            "type": "marker"
         },
         {
             "Id": "3",

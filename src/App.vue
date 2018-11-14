@@ -85,7 +85,7 @@
   import universitydata from './universities.json'
   import countrydata from './country.json'
   import programdata from './program.json'
-  
+  import {hello} from './hi.js'
 
   delete L.Icon.Default.prototype._getIconUrl
 
@@ -353,7 +353,7 @@ export default {
   mounted() {
     this.initMap();
     this.initLayers();
-    
+    hello();
     //this.initUniversityMarkers();
     //this.convertToArray();
   },
