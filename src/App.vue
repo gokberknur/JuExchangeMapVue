@@ -89,6 +89,8 @@
   import FilterList from './components/filterList.vue'
   import DetailView from './components/detailView.vue'
   
+  import axios from 'axios';
+
   
   delete L.Icon.Default.prototype._getIconUrl
 
@@ -109,6 +111,7 @@ export default {
     newdata: null,
     cities: data.city,
     universities: universitydata.university,
+    apidata: [],
     layers: 
     
     [
@@ -346,7 +349,9 @@ export default {
   mounted() {
     this.initMap();
     this.initLayers();
-    
+    //FilterList.afunction();
+    axios.get('http://localhost/exchange/public/api/universities')
+    .then(response => (this.apidata = response))
   },
   methods: {
       layerChanged(layerId, active) {

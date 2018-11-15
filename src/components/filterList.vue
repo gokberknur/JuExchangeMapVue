@@ -39,15 +39,26 @@
 </template>
 
 <script>
+  import testdata from '../App.vue'
+
     export default {
         data (){
             return{
-                testFilter: 'Sweden'
+                testFilter: 'Sweden',
+                testuni: this.universities
             }
         },
+        
         methods:{
-
-        }
+            afunction(){
+            console.log("IAm BIG");
+            }
+        },
+        mounted() {
+          this.afunction();
+        },
+        
+       
     }
 </script>
 
