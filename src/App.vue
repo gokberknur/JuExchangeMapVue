@@ -1,43 +1,95 @@
 <template>
-<div>
-  
-  
-   <div class="container mt-3 mt-sm-5" id="app">
-  <div class="row">
-    <div class="col-md-9">
-      <div class="map" id="map" style="height:800px;"></div>
+<div id="app">
+  <div class="map" id="map"></div>
+     <el-row class=" top-area">
+        <el-col 
+        class="logo-area"
+        :span="6">            
+        </el-col>
+        <el-col 
+        class="filter-area"
+        :span="18"
+        >
+          <div 
+          class="filter-selection-area">
+          <multiselect 
+              :multiple="true"
+              v-model="selectedCountry"
+              :options="countries"
+              
+              placeholder="select country"
+              label="country" 
+              track-by="country"
+              
+             >
+             </multiselect>
 
-    </div>
-    <div class="col-md-3">
-      <div
-        class="menu list"
-        v-for="layer in layers"
-        :key="layer.id"
-      >
-        <label class="menu list">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            v-model="layer.active"
-            @change="layerChanged(layer.id, layer.active)"
-          />
-          {{ layer.name }}
-        </label>
-        
-      </div>
-    </div>
-  </div>
-</div>
-       
-</div>
+             <multiselect 
+              :multiple="true"
+              v-model="selectedUniversity"
+              :options="universities"
+              placeholder="select Uni"
+              label="name" 
+              track-by="name"
+              sort-by ="name"
+             >
+             </multiselect>
+
+             <multiselect 
+              :multiple="true"
+              v-model="selectedProgramme"
+              :options="universityMenu"
+              placeholder="select program"
+              label="title" 
+              track-by="title"
+             >
+             </multiselect>
+            
+          </div>  
+        </el-col>
+    </el-row>
+    <FilterList :list="filteredUniList"/>
+    <DetailView/>
+      <div class="dev-box">
+        <h2>Dev Box</h2>
+        <div
+          class="dev-list"
+          v-for="layer in layers"
+          :key="layer.id"
+        >
+        <label class="menu-list">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              v-model="layer.active"
+              @change="layerChanged(layer.id, layer.active)"
+            />
+            {{ layer.name }}
+          </label>
+        </div>
+       </div> 
+</div>       
+
 </template>
 
 <script>
-  import data from './city.json'
+  import data from './API/city.json'
   import L from 'leaflet'
   import 'leaflet/dist/leaflet.css'
-  import universitydata from './universities.json'
 
+  //test data
+ // import universitydata from  './API/universities.json'
+  import countrydata from     './API/country.json'
+  import programdata from     './API/program.json'
+  
+  //Components
+  import FilterList from './components/filterList.vue'
+  import DetailView from './components/detailView.vue'
+  import Multiselect from 'vue-multiselect'
+
+    import axios from 'axios';
+
+  
   delete L.Icon.Default.prototype._getIconUrl
 
 L.Icon.Default.mergeOptions({
@@ -47,13 +99,29 @@ L.Icon.Default.mergeOptions({
 })
 export default {
   name: 'app',
+  components:{
+    FilterList, Multiselect
+  },
   data () {
     return {
+      selectedCountry: null,
+      selectedUniversity: null,
+      selectedProgramme: null,
+      
+      universityMenu: programdata.programme,
+
+      countries: countrydata.countryArray,
+      universities: [],
+      programmes: programdata.programme,
+      filteredUniList: [],
+      currentMarkers: null,
+
     map: null,
     tileLayer: null,
     newdata: null,
     cities: data.city,
-    universities: universitydata.university,
+    
+    apidata: [],
     layers: 
     
     [
@@ -291,9 +359,123 @@ export default {
   mounted() {
     this.initMap();
     this.initLayers();
+    // this.loadData();
     
+
+    axios.get('http://localhost/exchange/public/api/universities')
+    .then(response => (this.universities= response.data.data,  this.apidata = response.data)
+    .then(this.addCoordsArray())
+)
+    
+    
+    
+        //this.countries = this.universities.data.country;
+
+    //this.universities =this.apidata;
   },
   methods: {
+    addCoordsArray(){
+        // adds coords array to api object          
+        this.universities.forEach((element) => {
+        element.type ="marker";
+         //this is important otherwise adding markers function will crash
+        if(element.latitude && element.longitude){
+        element.coords =[];
+        element.coords[0]= element.latitude;
+        element.coords[1]= element.longitude;
+        }
+      })
+    
+     },
+
+    updateProgrammeMenu(){
+
+    },
+
+    updateAfterCountry(valueOfSelectedCountry){
+        if(valueOfSelectedCountry){
+         this.filteredUniList = [];
+        }
+        else{
+           this.filteredUniList = [];
+           //this.filteredUniList= universitydata.university;
+        }
+      console.log(valueOfSelectedCountry);
+      //we have to use arrow function here for using this keyword for accesing data.
+      // without arrow function "this" keyword won't work. FUCKING JS
+           this.selectedCountry.forEach((element) => {
+            this.universities.forEach((unielement)=>{
+              if(unielement.country == element.country) {
+                this.filteredUniList.push(unielement)
+              console.log("pass");
+            }
+
+          });
+               console.log(this.filteredUniList);
+      });
+    },
+    initUniversityMarkers() {
+        //This function adds leaflet Object attribute to all universities
+        // and clears the map for the filtering new markers
+       
+        this.universities.forEach((uni) => {  
+        const unimarkers = this.universities.filter(unis => unis.type === "marker");
+      
+        unimarkers.forEach((element) => {
+        element.leafletObject = L.marker(element.coords)
+        .bindPopup(element.name);
+           //element.leafletObject.removeFrom(this.map);   
+           //console.log(this.map._layers);
+         
+          
+           // element.leafletObject.addTo(this.map);
+          });
+        });
+
+    },
+
+    addMarkers(){
+        
+      if(this.currentMarkers == null){
+         this.filteredUniList.forEach((uni) => {
+           console.log(Math.random())
+           if(uni.coords){
+            uni.leafletObject = L.marker(uni.coords)
+            .bindPopup(uni.name)
+            this.layerGroup.addLayer(uni.leafletObject);
+             //this.currentMarkers.push(uni.leafletObject);
+             }
+          }); 
+            
+        }
+      else
+      {
+            /*this.currentMarkers.forEach((element) => {
+            this.currentMarkers.removeFrom(this.map);
+            console.log(this.currentMarkers);
+        });*/
+       
+          //  this.currentMarkers = null;
+        
+      }
+    },
+
+    //API CALL whic is not working now
+    /*loadData() {
+         
+
+      this.$http.get('http://localhost/exchange/public/api/universities', function(data, status, request){
+        if(status == 200)
+        {
+          self.apidata = data;
+          console.log(self.apidata);
+        }
+        else {
+          console.log("it doesnt work");
+        }
+      });
+  },*/ 
+
       layerChanged(layerId, active) {
       const layer = this.layers.find(layer => layer.id === layerId);
       
@@ -315,7 +497,7 @@ export default {
             .bindPopup(feature.name);
         });
         
-        polygonFeatures.forEach((feature) => {
+          polygonFeatures.forEach((feature) => {
           feature.leafletObject = L.polygon(feature.coords)
             .bindPopup(feature.name);
         });
@@ -323,6 +505,9 @@ export default {
     },
     initMap() {
       this.map = L.map('map').setView([38.63, -90.23], 3);
+     
+      this.layerGroup = L.layerGroup([]);
+      this.map.addLayer(this.layerGroup);
       this.tileLayer = L.tileLayer(
         'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png',
         {
@@ -334,10 +519,145 @@ export default {
       this.tileLayer.addTo(this.map);
     },
   },
+  watch: {
+  selectedCountry: 
+            
+            function(valueOfSelectedCountry){
+            
+            if(this.selectedCountry){
+            this.updateAfterCountry(valueOfSelectedCountry);
+            this.initUniversityMarkers();
+           
+            
+            this.layerGroup.clearLayers();  
+            this.addMarkers();
+                  }
+            else if(lenght.this.selectedCountry == 0) {
+              // show all unis
+              alert("something")
+              console.log("its empty")
+            }
+
+                  
+      //when selected country value changes, do the updates
+      // change universities for example, according to their countries.
+      
+  },
+  universityMenu: 
+    function() {
+        if(this.universityMenu){
+
+        }
+        
+    },
+
+ filteredUniList:
+          function() {
+
+          }
+    
+  
+},
 }
 </script>
 
-<style>
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+
+<style lang="scss" scoped>
+/*@import './assets/scss/variables.scss';*/
+
+  #map{
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .dev-box{
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    bottom: 1%;
+    right: 1%;
+    height: fit-content;
+    width: 250px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 15px;
+    box-shadow: 0px 0px 41px -2px rgba(0,0,0,0.5);
+
+    h2{
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .dev-list{
+      margin: 10px 25px;
+    }
+  }
+
+  .top-area{
+    position: fixed;
+    left: 1%;
+    top: 1%;
+    height: fit-content;
+    width: 100vw;
+  }
+
+  .filter-area{
+    margin: 0 10px;
+
+    .filter-selection-area{
+      position: fixed;
+      right: 1%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-evenly;
+      width: 55%;
+      height: fit-content;
+      padding: 25px;
+      background-color: rgba(255, 255, 255, 0.7);
+      border-radius: 15px;
+      box-shadow: 0px 0px 41px -2px rgba(0,0,0,0.5);
+      color: #000;
 
 
+        .filter-catergori-item{
+          font-size: 1.8em;
+          font-weight: 700;
+          color: #000;
+        }
+
+        &:hover{
+          background-color: #774299;
+          
+          .filter-catergori-item{
+            color: #fff;
+          }    
+        }
+
+        &:before{
+          background-image: -moz-element();
+        }
+
+    }
+   
+  }
+
+  
+
+  /*Element UI custom styling*/
+  .el-dropdown-menu{
+    top: 100px !important;
+    background-color: #774299 !important;
+  }
+
+  .el-dropdown-menu__item{
+    color: #fff !important;
+  }
+
+  .el-dropdown-menu__item:hover{
+    background-color: #522e69 !important;
+  }  
+  
 </style>
