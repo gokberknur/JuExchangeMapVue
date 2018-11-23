@@ -4,14 +4,18 @@
      <el-row class=" top-area">
         <el-col 
         class="logo-area"
-        :span="6">            
+        :span="6"> 
+        <img class="exchange_logo" src="src\assets\images\go_exchange_logo_medium.png">           
         </el-col>
         <el-col 
-        class="filter-area"
         :span="18"
         >
           <div 
-          class="filter-selection-area">
+          class="filter-area">
+          <div class="filter-header"><img class="ju-logo" src="src\assets\images\JU_A_neg_72.png"></div>
+          <img class="filter_icon" src="src\assets\images\filter_icon_black.png">
+          <div class="filter-selection-area">
+            <label class="filter-selection-area-header">Country</label>
           <multiselect 
               :multiple="true"
               v-model="selectedCountry"
@@ -23,7 +27,7 @@
               
              >
              </multiselect>
-
+            <label class="filter-selection-area-header">University</label>
              <multiselect 
               :multiple="true"
               v-model="selectedUniversity"
@@ -34,7 +38,7 @@
               sort-by ="name"
              >
              </multiselect>
-
+             <label class="filter-selection-area-header">Programme</label>
              <multiselect 
               :multiple="true"
               v-model="selectedProgramme"
@@ -44,11 +48,11 @@
               track-by="title"
              >
              </multiselect>
-            
+            </div>
+            <FilterList :list="filteredUniList"/>
           </div>  
         </el-col>
-    </el-row>
-    <FilterList :list="filteredUniList"/>
+    </el-row>   
     <DetailView/>
       <div class="dev-box">
         <h2>Dev Box</h2>
@@ -97,10 +101,12 @@ L.Icon.Default.mergeOptions({
   iconUrl: require('leaflet/dist/images/marker-icon.png'),
   shadowUrl: require('leaflet/dist/images/marker-shadow.png')
 })
+
+
 export default {
   name: 'app',
   components:{
-    FilterList, Multiselect
+    FilterList, Multiselect, DetailView
   },
   data () {
     return {
@@ -357,7 +363,9 @@ export default {
   }
     },
   mounted() {
-    this.initMap();
+    this.initMap(
+
+    );
     this.initLayers();
     // this.loadData();
     
@@ -504,8 +512,9 @@ export default {
       });
     },
     initMap() {
+
       this.map = L.map('map').setView([38.63, -90.23], 3);
-     
+      this.map.zoomControl.setPosition('bottomleft');
       this.layerGroup = L.layerGroup([]);
       this.map.addLayer(this.layerGroup);
       this.tileLayer = L.tileLayer(
@@ -579,7 +588,7 @@ export default {
     flex-direction: column;
     position: fixed;
     bottom: 1%;
-    right: 1%;
+    left: 1%;
     height: fit-content;
     width: 250px;
     padding: 15px;
@@ -604,36 +613,82 @@ export default {
     width: 100vw;
   }
 
-  .filter-area{
-    margin: 0 10px;
+  .exchange_logo{
+    position: fixed;
+    top: 1%;
+    left: 1%;
+    max-width: 17%;
+    max-height: 17%;
+  }
 
-    .filter-selection-area{
+
+    .filter-area{
       position: fixed;
-      right: 1%;
+      right: 0;
+      top:0;
       display: flex;
-      flex-direction: row;
-      justify-content: space-evenly;
-      width: 55%;
-      height: fit-content;
-      padding: 25px;
-      background-color: rgba(255, 255, 255, 0.7);
-      border-radius: 15px;
-      box-shadow: 0px 0px 41px -2px rgba(0,0,0,0.5);
+      flex-direction: column;
+      width: 23%; 
+      height: 100vw;
+      background-color:rgba(255, 255, 255, 0.9);
+      box-shadow: -12px 0px 6px rgba(0, 0, 0, 0.25);
       color: #000;
 
+      .filter-header{
+        position: relative;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 4%;
+        background-color: #774299;
+        margin-bottom: 5px;
 
-        .filter-catergori-item{
-          font-size: 1.8em;
-          font-weight: 700;
-          color: #000;
+        .ju-logo{
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          max-width: 50%;
+          max-height: 50%
         }
+      }
 
-        &:hover{
-          background-color: #774299;
-          
-          .filter-catergori-item{
-            color: #fff;
-          }    
+      .filter_icon{
+        position: absolute;
+        top: 5%;
+        right: 5%;
+        max-width: 7%;
+        max-height: 7%;
+      }
+
+        .filter-selection-area{
+          display: flex;
+          flex-direction: column;
+          justify-content: space-evenly;
+          padding: 25px;
+          height: 300px;
+          width: 100%;
+          box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.25);
+
+          &:before{
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            background-size: 50%;
+            background-repeat: no-repeat;
+
+          }
+
+          .filter-selection-area-header{
+            margin-bottom: 0 !important;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: rgb(56, 56, 56);
+          }
+
         }
 
         &:before{
@@ -642,8 +697,22 @@ export default {
 
     }
    
-  }
 
+/*Custom Scollbar*/
+  ::-webkit-scrollbar {
+      width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+      background: #774299; 
+      border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+      background-color: #522e69 !important;
+  }
   
 
   /*Element UI custom styling*/
@@ -659,5 +728,7 @@ export default {
   .el-dropdown-menu__item:hover{
     background-color: #522e69 !important;
   }  
+  
+ 
   
 </style>

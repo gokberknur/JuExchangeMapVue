@@ -11,7 +11,7 @@
             <p>Webpage:</p>
         </div>
         <div class="detial-view-course-info">
-            <h3>Courses Covered</h3>
+            <div><h3>Courses Covered</h3></div>
             <div class="course-box">
                 <div class="guest-univerity-course">Hello</div>
                 <div class="home-univerity-course">Is it my me?</div>
@@ -39,15 +39,15 @@
         display: flex;
         flex-direction: row;
         position: fixed;
-        top: 60%;
-        left: 55%;
+        top: 50%;
+        left: 45%;
         transform: translate(-50%, -50%);
         height: 70vh;
         width: 100vh;
         padding: 15px;
         background-color: rgba(255, 255, 255, 0.7);
         box-shadow: 0px 0px 30px 0 rgba(0,0,0,0.5);
-        border-radius: 15px;
+        border-radius: 5px;
         z-index: 1;
 
         .detial-view-uni_info{
@@ -59,7 +59,7 @@
             margin: 0 10px;
             padding: 15px;
             background-color: #fff;
-            border-radius: 15px;
+            border-radius:  5px;
             box-shadow: 0px 0px 10px 0 rgba(0,0,0,0.5);
             z-index: 2;
 
@@ -97,9 +97,15 @@
             margin: 0 10px;
             padding: 15px;
             background-color: #fff;
-            border-radius: 15px;
+            border-radius: 5px;
             box-shadow: 0px 0px 10px 0 rgba(0,0,0,0.5);
             z-index: 2;
+
+            & > div{
+                width: 100%;
+                height: 5%;
+                box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.25);
+            }
 
             h3{
                 font-size: 1.2em;
@@ -111,12 +117,12 @@
                 display: flex;
                 flex-direction: row;
                 justify-content: space-around;
-                margin: 10px 0;
+                margin: 10px 13px;
                 padding: 10px;
-                width: 100%;
+                width: 95%;
                 height: 25%;
                 background-color: #c7c7c7;
-                border-radius: 15px;
+                border-radius: 5px;
                 box-shadow: 0px 0px 10px 0 rgba(0,0,0,0.7);
                 z-index: 3;
 

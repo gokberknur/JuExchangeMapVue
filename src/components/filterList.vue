@@ -1,8 +1,6 @@
 <template>
-    <el-row>
-      <el-col>
+        
         <div class="filter-list-area">
-            
             <ul class="filter-list-item-area"> 
               <li class="filter-list-item " v-for="(items, key) in list">
                 <div>
@@ -18,8 +16,6 @@
               </li> 
             </ul>
         </div>
-      </el-col>
-    </el-row>
 </template>
 
 <script>
@@ -57,15 +53,13 @@
 
 <style lang="scss" >
     .filter-list-area{
-    position: absolute;
-    left: 1%;
-    top: 120px;
-    width: 300px;
-    height: 80vh;
-    background-color: rgba(255, 255, 255, 0.7);
-    box-shadow: 0px 0px 30px 0 rgba(0,0,0,0.5);
-    border-radius: 15px;
+    position: relative;
+    right: 0;
+    top: 0;
+    width: 100%;
+    height: 60%;
     padding: 15px;
+    overflow-y: scroll;
 
     .added-filter{
       display: flex;
@@ -98,7 +92,7 @@
         padding: 10px;
         margin: 15px 0;
         background-color: #fff;
-        border-radius: 10px;
+        border-radius: 5px;
         box-shadow: 0px 0px 20px 0 rgba(0,0,0,0.4);
 
         &> div{
