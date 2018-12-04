@@ -40,7 +40,7 @@
         
         methods:{
             afunction(){
-            console.log("IAm BIG");
+            console.log("filterList.vue has loaded");
             }
         },
         mounted() {
