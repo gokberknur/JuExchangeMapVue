@@ -70,7 +70,6 @@
 </template>
 
 <script>
-  import data from './API/city.json'
   import L from 'leaflet'
   import 'leaflet/dist/leaflet.css'
 
@@ -201,8 +200,7 @@ export default {
         else{
           this.filteredUniList = [];
         }
-        console.log(valueOfSelectedCountry);
-        console.log(this.selectedCountry.length)
+      
       //we have to use arrow function here for using this keyword for accesing data.
       // without arrow function "this" keyword won't work.
           if(this.selectedCountry.length != 0) {
@@ -279,7 +277,6 @@ export default {
             else  {
               // show all unis maybe?
               alert("something")
-              console.log("its empty")
             }
 
                   
