@@ -12,7 +12,12 @@
         >
           <div 
           class="filter-area">
-          <div class="filter-header"><img class="ju-logo" src="src\assets\images\JU_A_neg_72.png"></div>
+          <div class="filter-header">
+            
+              
+            
+            <img class="ju-logo" src="src\assets\images\JU_A_neg_72.png">
+          </div>
           <img class="filter_icon" src="src\assets\images\filter_icon_black.png">
           <div class="filter-selection-area">
             <label class="filter-selection-area-header">Country</label>
@@ -91,8 +96,7 @@
   import DetailView from './components/detailView.vue'
   import Multiselect from 'vue-multiselect'
 
-    import axios from 'axios';
-
+  import axios from 'axios';
   
   delete L.Icon.Default.prototype._getIconUrl
 
@@ -110,6 +114,7 @@ export default {
   },
   data () {
     return {
+
       selectedCountry: null,
       selectedUniversity: null,
       selectedProgramme: null,
@@ -621,7 +626,6 @@ export default {
     max-height: 17%;
   }
 
-
     .filter-area{
       position: fixed;
       right: 0;
@@ -642,6 +646,7 @@ export default {
         height: 4%;
         background-color: #774299;
         margin-bottom: 5px;
+
 
         .ju-logo{
           position: absolute;
@@ -671,7 +676,7 @@ export default {
           box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.25);
 
           &:before{
-            content: "";
+            content: "";  
             position: absolute;
             top: 0;
             right: 0;
@@ -684,7 +689,7 @@ export default {
 
           .filter-selection-area-header{
             margin-bottom: 0 !important;
-            font-size: 1.2em;
+            font-size: 1.1vw;
             font-weight: 700;
             color: rgb(56, 56, 56);
           }
@@ -696,7 +701,7 @@ export default {
         }
 
     }
-   
+  } 
 
 /*Custom Scollbar*/
   ::-webkit-scrollbar {
