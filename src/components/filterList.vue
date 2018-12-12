@@ -2,14 +2,15 @@
         
         <div class="filter-list-area">
             <ul class="filter-list-item-area"> 
-              <li class="filter-list-item " v-for="(items, key) in list">
+              <li class="filter-list-item " v-for="(items, key) in packages">
                 <div>
                   <img class="fit_rating">
                 </div>
                 <div class="filter-list-item-info" >
-                  <h3>{{items.name}}</h3>
-                  <p>{{items.city}}</p>
+                  <h3>{{items.partner_university}}</h3>
+                  <p> Match: {{items.match_value}}</p>
                   <span>Match</span>
+                   <button>Show Courses </button>
                 </div>
               </li>
               <li class="filter-list-item">
@@ -25,7 +26,7 @@
         data (){
             return{
                 testFilter: 'Sweden',
-                testuni: testdata.universities,
+                
             }
         },
         props: {
@@ -36,6 +37,7 @@
           author: Object,
           testuni: Array,
           list: Array,
+          packages: Array,
         },
         
         methods:{
