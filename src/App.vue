@@ -20,15 +20,17 @@
               :multiple="false"
               v-model="selectedStudyLevel"
               :options="studyLevelMenu"
+              @select="input_handler_programme"
               placeholder="select your level"
               label="level"               
              >
              </multiselect>
             <label class="filter-selection-area-header">Programme</label>
              <multiselect 
-              :multiple="true"
+              :multiple="false"
               v-model="selectedProgramme"
               :options="programmeDropdownMenu"
+              @select="input_handler_country"
               placeholder="select program"
               label="title" 
               track-by="title"
@@ -37,8 +39,9 @@
 
             <label class="filter-selection-area-header">Country</label>
              <multiselect 
-              :multiple="true"
+              :multiple="false"
               v-model="selectedCountry"
+              @select="input_handler_uni"
               :options="countries"
               placeholder="select country"
               label="country" 
@@ -49,7 +52,7 @@
 
             <label class="filter-selection-area-header">University</label>
              <multiselect 
-              :multiple="true"
+              :multiple="false"
               v-model="selectedUniversity"
               :options="filteredUniList"
               placeholder="select Uni"
@@ -104,7 +107,7 @@ export default {
   data () {
     return {
       selectedCountry: [],
-      selectedUniversity: [],
+      selectedUniversity: null,
       selectedProgramme: [],
       selectedStudyLevel: [],
 
@@ -217,32 +220,26 @@ export default {
 
 
     // filtering university according to programme selection
-    // firs step getting related packages and put into array called filteredPackageList
+    // first step getting related packages and put into array called filteredPackageList
     updateProgrammeSelection(){
         this.filteredPackageList = [];
-       
-        this.selectedProgramme.forEach((programmesSelection) => {
-            this.packages.forEach((pack) =>{
-            if(programmesSelection.Id == pack.programme_Id){
+             this.packages.forEach((pack) =>{
+            if(this.selectedProgramme.Id == pack.programme_Id){
               this.filteredPackageList.push(pack)
-              
               }
-            });
-        });
+           });
         //
 
-        this.updateUniversityDropDownMenu()
-        //this.addMarkers();
+       
         this.getMatchedCourses(this.filteredPackageList)
         
-        //console.log(x);
-        // update filtering after programme selected
+        
+
 
     },
    updateUniversityDropDownMenu(){
     // updating university dropdown menu
-          this.filteredUniList = []
-
+          
           this.filteredPackageList.forEach((element) => {
               this.universities.forEach((university) => {
               if(university.Id == element.pu_Id){
@@ -253,92 +250,77 @@ export default {
          });
    },
 
-   updateCountryDropDownMenu(){
-     
-          this.countries = []
-          this.filteredUniList.forEach((uni) => {
-                      
-            this.countries.push(uni)
-      
-          });
-     
-        
-   },
+   
     
-    updateUniversitySelection(){
-      // filtering according to uni selection
-      let showUnis =[]
-        this.selectedUniversity.forEach((uni) => {
-          this.filteredUniList.forEach((element) => {
-              if(uni.Id == element.Id){
-                  showUnis.push(uni)
-              }
-
-          })
+    // input handlers for selections
+    input_handler_programme(){
+      this.$nextTick(() => {
+        	this.selectedProgramme = null
+          this.selectedUniversity = null
+          this.selectedCountry = null        
         })
-        this.filteredUniList = showUnis
     },
-
-    /*
-      * applyfırstfılter(){
-
-      }
-
-
-
-    */
-
-    showonlyCountry(xy){
-        this.filteredUniList = []
-        xy.forEach((el) =>{
-          this.universities.forEach((uni)=>{
-             if(el.Id == uni.Country_Id){
-                this.filtered
-             }
-
-            })
+      input_handler_uni(){
+        // empty select university value after country selection
+          this.$nextTick(() => {
+        	this.selectedUniversity = null          
         })
 
-    },
-   applyCountry(){
-     //applying country filter
-     // problem is country duplicates
-      let countryaArr =[]
-            this.selectedCountry.forEach((countryfilter) => {
-               this.filteredUniList.forEach((unielement) => {
-                    if(countryfilter.country == unielement.country){
-                        countryaArr.push(unielement)
-                    }
-                  
-                   
-                });
-            });
-            this.filteredUniList = countryaArr
-   },
+      },
+      // reset country value
+      input_handler_country(){
+        this.$nextTick(() => {
+        this.selectedCountry = null
+        })
+      },
 
-    applyFilters(valueFromFilter){
-        if(valueFromFilter){
-         this.filteredUniList = [];
-        }
-        else{
-          this.filteredUniList = [];
-        }
-      
-      //we have to use arrow function here for using this keyword for accesing data.
-      // without arrow function "this" keyword won't work.
-          if(this.selectedCountry.length != 0 )  {
-              this.updateCountrySelection()
-          }
-          
-          if(this.selectedProgramme.length != 0) {
-              this.updateProgrammeSelection()
-          }
-          else {
-            
-          }
+    applyFilter(){
+        this.filteredUniList = this.universities
         
-        this.addMarkers()
-          
+        if(this.selectedProgramme != null){
+            this.updateProgrammeSelection()
+            this.getMatchedCourses(this.filteredPackageList)
+            
+            this.filteredUniList =[]
+            this.filteredPackageList.forEach((packages) => {
+              this.universities.forEach((university) => {
+                if(university.Id == packages.pu_Id){
+                this.filteredUniList.push(university)        
+                console.log(university.Id)
+                }
+              })
+            })
+            
+            this.countries = this.filteredUniList.filter(el =>
+              el.country)
+
+             // this.addMarkers()
+        }
+        if(this.selectedCountry != null){
+            
+           this.filteredUniList = this.filteredUniList.filter(el => 
+              el.country === this.selectedCountry.country) 
+             
+
+              // FUCK YES
+              let newarray = this.filteredPackageList.filter( el => {
+                return this.filteredUniList.some(f => {
+                  return el.pu_Id === f.Id
+                })
+              })
+              this.filteredPackageList = newarray
+              
+
+           // this.addMarkers()            
+        }
+
+        if(this.selectedUniversity != null) {
+          this.filteredUniList = this.filteredUniList.filter(el=>
+              el.name === this.selectedUniversity.name)
+              //this.addMarkers()
+        }
+        
+
     },
 
     addMarkers(){
@@ -375,11 +357,12 @@ export default {
   },
   watch: {
         // Here we are checking if any filtering applied by user
-  filteredUniList: 
-    function(){
-        this.updateCountryDropDownMenu()
-    },
+ 
+  filteredUniList:
+    function (){
+    this.addMarkers()
 
+    },
   selectedStudyLevel:
 
         function(){
@@ -388,54 +371,45 @@ export default {
               }
               else{
                 // reset programme selection menu
-                this.programmeDropdownMenu = this.programmeDropdownMenuRestore;
-                
+               
               }
         },
 
   selectedCountry: 
             
-            function(valueOfSelectedCountry){
+            function(){
             
-            if(this.selectedCountry.length != 0){
-              this.showonlyCountry(valueOfSelectedCountry)
-            //this.applyCountry(valueOfSelectedCountry);
-                      
-            //this.layerGroup.clearLayers();  
-            //this.addMarkers();
-                  }
-            else  {
-              // show all unis maybe?
+            if(this.selectedCountry != null){
+              this.applyFilter()
             }
-
-                  
-      //when selected country value changes, do the updates
-      // change universities for example, according to their countries.
+            else {
+              this.input_handler_uni()
+              this.applyFilter()
+            }
       
   },
 
   selectedProgramme: 
-       function (valueofSelectedProgramme) {
-          if(this.selectedProgramme.length != 0) {
-            this.applyFilters(valueofSelectedProgramme)
-              //this.updateProgrammeSelection(valueofSelectedProgramme)
+       function () {
+          if(this.selectedProgramme !=null){
+            this.applyFilter()
           }
-          else {
-            this.filteredPackageList= []
-            this.filteredUniList = this.universities
-            this.addMarkers()
+          else{
+            this.filteredPackageList =[]
+            this.countries = this.countriesRestore
+            this.applyFilter()
           }
-
+          
 
 
        },
   selectedUniversity:
-    function (valueofSelectedUniversity){
-        if(this.selectedUniversity.length !=0) {
-          this.updateUniversitySelection(valueofSelectedUniversity)
+    function (){
+        if(this.selectedUniversity != null){
+        this.applyFilter()
         }
         else{
-            
+          this.applyFilter()
         }
     },
   
