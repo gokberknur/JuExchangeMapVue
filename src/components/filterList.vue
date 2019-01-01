@@ -1,6 +1,8 @@
 <template>
         
         <div class="filter-list-area">
+          <button  @click="show =!show"> Show Courses </button>
+
             <ul class="filter-list-item-area"> 
               <li class="filter-list-item " v-for="(items, key) in packages">
                 <div>
@@ -9,24 +11,57 @@
                 <div class="filter-list-item-info" >
                   <h3>{{items.partner_university}}</h3>
                   <p> Match: {{items.match_value}}</p>
-                  <span>Match</span>
-                   <button>Show Courses </button>
-                </div>
-              </li>
-              <li class="filter-list-item">
-              </li> 
-            </ul>
-        </div>
+                   
+
+                      <div v-for="(courses, key) in courses"> 
+                       
+                        <transition name="courses">  
+                        <div class="courses2" v-show="show">              
+                        <p v-if="courses.Pu_Id === items.pu_Id">
+                          {{courses.Course_name}}
+                         </p>
+                         </div>
+                          </transition>
+
+                       </div>
+                      
+                         
+                 </div>
+               </li>
+               
+             </ul>
+         </div>
+         
+         
 </template>
 
+
+<style>
+ .courses-enter {
+   opacity: 0;
+ } 
+
+ .courses-enter-active{
+   transition: opacity 0.3s;
+ }
+
+ .courses-leave {
+
+ }
+ .courses-leave-active{
+   transition: opacity 0.3s;
+   opacity: 0;
+ }
+</style>
 <script>
+
   import testdata from '../App.vue'
 
     export default {
         data (){
             return{
                 testFilter: 'Sweden',
-                
+                show: false
             }
         },
         props: {
@@ -38,17 +73,27 @@
           testuni: Array,
           list: Array,
           packages: Array,
+          courses: Array
         },
         
         methods:{
             afunction(){
-            console.log("filterList.vue has loaded");
+            console.log(this.show);
             }
+
+            
+
         },
         mounted() {
           this.afunction();
         },
-        
+
+       watch: {
+         show: 
+         function() {
+         this.afunction()
+         }
+       },
        
     }
 </script>

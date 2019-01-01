@@ -27,6 +27,11 @@
                 testData: "Sweden"
             }
         },
+        props: {                
+          list: Array,
+          packages: Array,
+          courses: Array
+        },
         methods:{
 
         }

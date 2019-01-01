@@ -63,11 +63,18 @@
              </multiselect>
              
             </div>
-            <FilterList :list="filteredUniList" :packages="filteredPackageList"/>
+            <FilterList 
+            :list="filteredUniList" 
+            :courses="availableCourses"
+            :packages="filteredPackageList"/>
+            
           </div>  
         </el-col>
     </el-row>   
-    <DetailView/>
+    
+    <DetailView 
+   
+    />
     
 </div>       
 
@@ -107,7 +114,7 @@ export default {
   data () {
     return {
       selectedCountry: [],
-      selectedUniversity: null,
+      selectedUniversity: [],
       selectedProgramme: [],
       selectedStudyLevel: [],
 
@@ -119,6 +126,7 @@ export default {
 
       
       // defining required variables for API calls 
+      availableCourses: [],
       coursePackage: [],
       packages: [],
       universities: [],
@@ -145,7 +153,9 @@ export default {
     
     // API calls below
     axios.get('http://localhost/exchange/public/api/universities')
-    .then(response => (this.universities= response.data.data))
+    .then(response => (
+        this.universities= response.data.data, 
+        this.filteredUniList =response.data.data))
       .then( addcords => {
       return this.addCoordsArray()
       })
@@ -205,14 +215,17 @@ export default {
             });
     },
 
-    getMatchedCourses(x){
+    getMatchedCourses(filteredPackages){
       // getting courses that related university provides
       // matching filteredpackage list id with coursepackageid in here
-      
-      x.forEach((id) => {
+      this.availableCourses = []
+
+      filteredPackages.forEach((id) => {
         this.coursePackage.forEach((coursePacks) => { 
         if(id.Id == coursePacks.Package_Id)
-           console.log(coursePacks.Course_name)
+           this.availableCourses.push(coursePacks)
+           console.log(this.availableCourses.Course_name)
+           //console.log(coursePacks.Course_name)
 
           });
       });
@@ -253,6 +266,8 @@ export default {
    
     
     // input handlers for selections
+
+    // reset programme menu after level selection
     input_handler_programme(){
       this.$nextTick(() => {
         	this.selectedProgramme = null
@@ -260,6 +275,14 @@ export default {
           this.selectedCountry = null        
         })
     },
+    // reset country value after programme selection
+      input_handler_country(){
+        this.$nextTick(() => {
+        this.selectedCountry = null
+        })
+      },
+
+      //reset uni value after country selection
       input_handler_uni(){
         // empty select university value after country selection
           this.$nextTick(() => {
@@ -267,12 +290,7 @@ export default {
         })
 
       },
-      // reset country value
-      input_handler_country(){
-        this.$nextTick(() => {
-        this.selectedCountry = null
-        })
-      },
+      
 
     applyFilter(){
         this.filteredUniList = this.universities
@@ -286,20 +304,24 @@ export default {
               this.universities.forEach((university) => {
                 if(university.Id == packages.pu_Id){
                 this.filteredUniList.push(university)        
-                console.log(university.Id)
+                //console.log(university.Id)
                 }
               })
             })
             
             this.countries = this.filteredUniList.filter(el =>
-              el.country)
+              el.country) 
 
-             // this.addMarkers()
+             
+              //removing duplicates thanks to lodash
+              this.countries = _.uniqBy(this.countries, 'country')
+             
+
         }
         if(this.selectedCountry != null){
             
            this.filteredUniList = this.filteredUniList.filter(el => 
-              el.country === this.selectedCountry.country) 
+              this.selectedCountry.country ===  el.country ) 
              
 
               // FUCK YES
@@ -309,15 +331,20 @@ export default {
                 })
               })
               this.filteredPackageList = newarray
-              
-
-           // this.addMarkers()            
+                
         }
 
         if(this.selectedUniversity != null) {
           this.filteredUniList = this.filteredUniList.filter(el=>
               el.name === this.selectedUniversity.name)
-              //this.addMarkers()
+              
+              // FUCK YES
+              let newarray = this.filteredPackageList.filter( el => {
+                return this.filteredUniList.some(f => {
+                  return el.pu_Id === f.Id
+                })
+              })
+              this.filteredPackageList = newarray
         }
         
 
@@ -328,20 +355,35 @@ export default {
         this.layerGroup.clearLayers() //Clears current layers on map (markers)
         this.filteredUniList.forEach((uni) => {
             if(uni.coords){ //if coords object(which is an array) exists in filteredUniList, run following
-            uni.leafletObject = L.marker(uni.coords) //Create marker for selected coordinates
+            uni.leafletObject = L.marker(uni.coords).on('click',  markerclick => {
+             console.log(uni.coords) 
+            }) //Create marker for selected coordinates
             .bindPopup(uni.name) //Adds popup attribute to Leaflet Object
-            this.layerGroup.addLayer(uni.leafletObject); // Adds layers to map (markers)
+            this.layerGroup.addLayer(uni.leafletObject)
+
+            
+             
+            // Adds layers to map (markers)
             }
         }); 
-       
+       //this.layerGroup.on('click',
+       //this.layerGroup.on('click', this.markerclick()) 
+
     },
    
-    initMap() {
+   markerclick(){
 
-      this.map = L.map('map').setView([38.63, -90.23], 3);
-      this.map.zoomControl.setPosition('bottomleft');
-      this.layerGroup = L.layerGroup([]);
-      this.map.addLayer(this.layerGroup);
+     console.log('hello marker clicked')
+     console.log()
+   },
+
+    initMap() {
+      this.map = L.map('map').setView([38.63, -90.23], 3)
+      this.map.zoomControl.setPosition('bottomleft')
+      this.layerGroup = L.featureGroup()
+      this.map.addLayer(this.layerGroup)
+
+      
       this.tileLayer = L.tileLayer(
         'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png',
         {
@@ -370,6 +412,7 @@ export default {
               this.updateLevelSelection();
               }
               else{
+                this.programmeDropdownMenu = this.programmeDropdownMenuRestore
                 // reset programme selection menu
                
               }
