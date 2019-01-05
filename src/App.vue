@@ -183,6 +183,7 @@ export default {
           this.programmeDropdownMenu = response.data.data,
           this.programmeDropdownMenuRestore = response.data.data))
 
+    this.input_handler_programme()
   },
 
   methods: {
@@ -279,6 +280,7 @@ export default {
       input_handler_country(){
         this.$nextTick(() => {
         this.selectedCountry = null
+        this.selectedUniversity = null          
         })
       },
 
@@ -426,8 +428,9 @@ export default {
               this.applyFilter()
             }
             else {
-              this.input_handler_uni()
               this.applyFilter()
+             this.input_handler_uni()
+
             }
       
   },
@@ -436,11 +439,13 @@ export default {
        function () {
           if(this.selectedProgramme !=null){
             this.applyFilter()
+
           }
           else{
             this.filteredPackageList =[]
             this.countries = this.countriesRestore
             this.applyFilter()
+            this.input_handler_programme()
           }
           
 

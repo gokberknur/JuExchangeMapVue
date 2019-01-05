@@ -1,7 +1,7 @@
 <template>
         
         <div class="filter-list-area">
-          <button  @click="show =!show"> Show Courses </button>
+                  <button  @click="show =!show"> {{text}} </button>
 
             <ul class="filter-list-item-area"> 
               <li class="filter-list-item " v-for="(items, key) in packages">
@@ -60,6 +60,7 @@
     export default {
         data (){
             return{
+                text: 'Show Courses',
                 testFilter: 'Sweden',
                 show: false
             }
@@ -79,8 +80,15 @@
         methods:{
             afunction(){
             console.log(this.show);
+            },
+          changeText(){
+            if(this.show){
+              this.text = 'Hide Courses'
             }
-
+            else{
+              this.text = "Show Courses"
+            }
+          }
             
 
         },
@@ -92,6 +100,7 @@
          show: 
          function() {
          this.afunction()
+         this.changeText()
          }
        },
        
