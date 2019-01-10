@@ -63,10 +63,53 @@
              </multiselect>
              
             </div>
-            <FilterList 
-            :list="filteredUniList" 
-            :courses="availableCourses"
-            :packages="filteredPackageList"/>
+            
+            <div class="filter-list-area">
+
+            <ul class="filter-list-item-area"> 
+              <li class="filter-list-item" v-for="(items, key) in filteredPackageList" >
+                <div>
+                  <img class="fit_rating">
+                </div>
+                <div class="filter-list-item-info" >
+                  <h3>{{items.partner_university}}</h3>
+                  <p> Match: {{items.match_value}}</p>
+
+
+                  <button  v-on:click="showCourses(key)"> {{"Show Courses"}} </button>
+                  
+                  <button  v-on:click="applyButton(items,key)"> {{"Apply"}} </button>
+
+                    <!-- <div v-for="(box, index) in [1,2,3,4,5]">
+                    <div>
+                      Box {{ box }} <button @click="toggleMore(index)">More</button>
+                    </div>
+
+                    <div v-show="showMoreText[index]">
+                      More about box {{ box }}
+                    </div> -->
+
+
+
+                      <div v-for="courses in availableCourses" > 
+                       
+                        <transition name="courses">  
+                        <div class="courses2" v-show="showMoreText[key]">              
+                        <p v-if="courses.Pu_Id === items.pu_Id">
+                          {{courses.Course_name}}
+                         </p>
+                         </div>
+                          </transition>
+
+                       </div>
+                      
+                         
+                 </div>
+               </li>
+               
+             </ul>
+         </div>
+            
             
           </div>  
         </el-col>
@@ -79,8 +122,31 @@
 </div>       
 
 </template>
+<style>
+ .courses-enter {
+   opacity: 0;
+ } 
 
+ .courses-enter-active{
+   transition: opacity 0.3s;
+ }
+
+ .courses-leave {
+
+ }
+ .courses-leave-active{
+   transition: opacity 0.3s;
+   opacity: 0;
+ }
+</style>
 <script>
+
+ /* 
+ :           list="filteredUniList" 
+            :courses="availableCourses"
+            :packages="filteredPackageList"/>
+            */
+
   import L from 'leaflet'
   import 'leaflet/dist/leaflet.css'
 
@@ -109,7 +175,7 @@ L.Icon.Default.mergeOptions({
 export default {
   name: 'app',
   components:{
-    FilterList, Multiselect, 
+    FilterList, Multiselect
   },
   data () {
     return {
@@ -117,7 +183,7 @@ export default {
       selectedUniversity: [],
       selectedProgramme: [],
       selectedStudyLevel: [],
-
+        showMoreText: [],
       
 
       studyLevelMenu: [{
@@ -138,7 +204,7 @@ export default {
       programmeDropdownMenu: [],
       programmeDropdownMenuRestore: [],
       
-
+      //show: false,
       map: null,
       tileLayer: null,
       newdata: null,
@@ -184,9 +250,23 @@ export default {
           this.programmeDropdownMenuRestore = response.data.data))
 
     this.input_handler_programme()
+    //this.addshow()
   },
 
   methods: {
+    applyButton(items, key){
+
+       // alert("you have applied to\n" + this.filteredPackageList[key].partner_university)
+
+    },
+ showCourses(index) {
+        /*
+          Adds a property to a reactive object, ensuring the new property is
+          also reactive, so triggers view updates.
+          https://vuejs.org/v2/api/#Vue-set
+         */
+        this.$set(this.showMoreText, index, ! this.showMoreText[index])
+      },
     
     
         //without  coords object in array its not possible to add markes on map
@@ -401,7 +481,13 @@ export default {
   },
   watch: {
         // Here we are checking if any filtering applied by user
- 
+ filteredPackageList:
+        function(){
+        this.getMatchedCourses(this.filteredPackageList)
+        this.showMoreText =[]
+
+
+        },
   filteredUniList:
     function (){
     this.addMarkers()
@@ -434,6 +520,7 @@ export default {
             }
       
   },
+
 
   selectedProgramme: 
        function () {
@@ -625,7 +712,85 @@ export default {
   .el-dropdown-menu__item:hover{
     background-color: #522e69 !important;
   }  
-  
+   .filter-list-area{
+    position: relative;
+    right: 0;
+    top: 0;
+    width: 100%;
+    height: 60%;
+    padding: 15px;
+    overflow-y: scroll;
+
+    .added-filter{
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;  
+      justify-content: space-between;
+      width: 100%;
+      height: 150px;
+      padding: 15px;
+      /*grid-template-columns: fit-content(400px) fit-content(400px) 1fr;*/
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0px 0px 41px -2px rgba(0,0,0,0.5);
+    }
+
+    .filter-list-item-area{
+      display: flex;
+      flex-direction: column;
+      /*overflow-y: scroll;*/
+      width: inherit;
+      padding: 0 30px 0 15px;
+      margin: 15px 0;
+      list-style-type: none;
+      
+      .filter-list-item{  
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: 120px;
+        padding: 10px;
+        margin: 15px 0;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0px 0px 20px 0 rgba(0,0,0,0.4);
+
+        &> div{
+
+            .fit_rating{
+            width: 30px;
+            height: 30px;
+            background-color: #888;
+          }
+        }
+        .filter-list-item-info{
+          text-align: left;
+          padding-left: 5px;
+          
+          h3{
+            font-weight: bold;
+            font-size: 18px;
+          }
+        }
+      }
+    }
+
+  }
+
+   /*Custom Element UI */ 
+  .el-tag{
+    border-radius: 15px;
+    background-color: #774299 !important;
+    border:none;
+    color: #fff;
+
+    .el-icon-close{
+      color:#fff !important;
+    }
+    .el-icon-close:hover{
+      background-color: #522e69 !important;
+    }
+  }
  
   
 </style>

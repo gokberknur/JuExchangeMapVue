@@ -1,19 +1,19 @@
 <template>
-        
-        <div class="filter-list-area">
-                  <button  @click="show =!show"> {{text}} </button>
+           <div class="filter-list-area">
 
             <ul class="filter-list-item-area"> 
-              <li class="filter-list-item " v-for="(items, key) in packages">
+              <li class="filter-list-item " v-for="(items, key) in packages" :show="show">
                 <div>
                   <img class="fit_rating">
                 </div>
                 <div class="filter-list-item-info" >
                   <h3>{{items.partner_university}}</h3>
                   <p> Match: {{items.match_value}}</p>
-                   
 
-                      <div v-for="(courses, key) in courses"> 
+
+                  <button  v-on:click="show =!show"> {{text}} </button>
+
+                      <div v-for="(courses, key) in courses" > 
                        
                         <transition name="courses">  
                         <div class="courses2" v-show="show">              
@@ -31,7 +31,6 @@
                
              </ul>
          </div>
-         
          
 </template>
 
@@ -58,6 +57,7 @@
   import testdata from '../App.vue'
 
     export default {
+      
         data (){
             return{
                 text: 'Show Courses',
@@ -72,9 +72,12 @@
           commentIds: Array,
           author: Object,
           testuni: Array,
+
           list: Array,
           packages: Array,
-          courses: Array
+          courses: Array,
+          
+          show: Boolean
         },
         
         methods:{
@@ -84,9 +87,11 @@
           changeText(){
             if(this.show){
               this.text = 'Hide Courses'
+             
             }
             else{
-              this.text = "Show Courses"
+             this.text = "Show Courses"
+
             }
           }
             
