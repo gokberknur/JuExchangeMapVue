@@ -1,6 +1,7 @@
 <template>
     <div class="detail-view-container">
         <div class="detial-view-uni_info">
+        
             <h3 class="university-name">Jönköping university</h3>
             <span class="university-location">Jönköping, Swden</span>
             <img class="univeristy-img">

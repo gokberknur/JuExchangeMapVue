@@ -2,7 +2,7 @@
            <div class="filter-list-area">
 
             <ul class="filter-list-item-area"> 
-              <li class="filter-list-item " v-for="(items, key) in packages" :show="show">
+              <li class="filter-list-item " v-for="(items, key) in packages" >
                 <div>
                   <img class="fit_rating">
                 </div>
@@ -11,12 +11,13 @@
                   <p> Match: {{items.match_value}}</p>
 
 
-                  <button  v-on:click="show =!show"> {{text}} </button>
+                  <button  v-on:click="showCourses(key)"> {{"Show Courses"}} </button>
+                  <button  v-on:click="applyButton(items,key)"> {{"Apply"}} </button>
 
-                      <div v-for="(courses, key) in courses" > 
+                      <div v-for="courses in courses" > 
                        
                         <transition name="courses">  
-                        <div class="courses2" v-show="show">              
+                        <div class="courses2" v-show="showMoreText[key]">              
                         <p v-if="courses.Pu_Id === items.pu_Id">
                           {{courses.Course_name}}
                          </p>
@@ -61,8 +62,9 @@
         data (){
             return{
                 text: 'Show Courses',
-                testFilter: 'Sweden',
-                show: false
+                
+                showMoreText: [],
+
             }
         },
         props: {
@@ -76,11 +78,23 @@
           list: Array,
           packages: Array,
           courses: Array,
-          
-          show: Boolean
+        
         },
         
         methods:{
+          applyButton(items, key){
+
+       // alert("you have applied to\n" + this.filteredPackageList[key].partner_university)
+
+    },
+    showCourses(index) {
+        /*
+          Adds a property to a reactive object, ensuring the new property is
+          also reactive, so triggers view updates.
+          https://vuejs.org/v2/api/#Vue-set
+         */
+        this.$set(this.showMoreText, index, ! this.showMoreText[index])
+      },
             afunction(){
             console.log(this.show);
             },

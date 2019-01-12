@@ -63,52 +63,12 @@
              </multiselect>
              
             </div>
-            
-            <div class="filter-list-area">
 
-            <ul class="filter-list-item-area"> 
-              <li class="filter-list-item" v-for="(items, key) in filteredPackageList" >
-                <div>
-                  <img class="fit_rating">
-                </div>
-                <div class="filter-list-item-info" >
-                  <h3>{{items.partner_university}}</h3>
-                  <p> Match: {{items.match_value}}</p>
-
-
-                  <button  v-on:click="showCourses(key)"> {{"Show Courses"}} </button>
-                  
-                  <button  v-on:click="applyButton(items,key)"> {{"Apply"}} </button>
-
-                    <!-- <div v-for="(box, index) in [1,2,3,4,5]">
-                    <div>
-                      Box {{ box }} <button @click="toggleMore(index)">More</button>
-                    </div>
-
-                    <div v-show="showMoreText[index]">
-                      More about box {{ box }}
-                    </div> -->
-
-
-
-                      <div v-for="courses in availableCourses" > 
-                       
-                        <transition name="courses">  
-                        <div class="courses2" v-show="showMoreText[key]">              
-                        <p v-if="courses.Pu_Id === items.pu_Id">
-                          {{courses.Course_name}}
-                         </p>
-                         </div>
-                          </transition>
-
-                       </div>
-                      
-                         
-                 </div>
-               </li>
-               
-             </ul>
-         </div>
+            <FilterList 
+            :list="filteredUniList" 
+            :courses="availableCourses"
+            :packages="filteredPackageList"/>
+            />
             
             
           </div>  
@@ -116,7 +76,10 @@
     </el-row>   
     
     <DetailView 
-   
+            :list="filteredUniList" 
+            :courses="availableCourses"
+            :packages="filteredPackageList"
+            
     />
     
 </div>       
@@ -141,11 +104,6 @@
 </style>
 <script>
 
- /* 
- :           list="filteredUniList" 
-            :courses="availableCourses"
-            :packages="filteredPackageList"/>
-            */
 
   import L from 'leaflet'
   import 'leaflet/dist/leaflet.css'
@@ -259,7 +217,7 @@ export default {
        // alert("you have applied to\n" + this.filteredPackageList[key].partner_university)
 
     },
- showCourses(index) {
+    showCourses(index) {
         /*
           Adds a property to a reactive object, ensuring the new property is
           also reactive, so triggers view updates.
