@@ -14,15 +14,18 @@
                   <button  v-on:click="showCourses(key)"> {{"Show Courses"}} </button>
                   <button  v-on:click="applyButton(items,key)"> {{"Apply"}} </button>
 
-                      <div v-for="courses in courses" > 
-                       
+                      <div v-for="availableCoursesList in availableCourses" > 
+                        <div v-for="courseList in courses">
                         <transition name="courses">  
                         <div class="courses2" v-show="showMoreText[key]">              
-                        <p v-if="courses.Pu_Id === items.pu_Id">
-                          {{courses.Course_name}}
+                        <p v-if="availableCoursesList.Pu_Id == items.pu_Id && courseList.Id == availableCoursesList.Course_Id">
+                          {{courseList.name}}
+                          
                          </p>
+                         
                          </div>
                           </transition>
+                       </div>
 
                        </div>
                       
@@ -62,7 +65,7 @@
         data (){
             return{
                 text: 'Show Courses',
-                
+                show: true,
                 showMoreText: [],
 
             }
@@ -74,11 +77,11 @@
           commentIds: Array,
           author: Object,
           testuni: Array,
-
-          list: Array,
-          packages: Array,
           courses: Array,
-        
+          university: Array,
+          packages: Array,
+          availableCourses: Array,
+          coursePackage: Array,
         },
         
         methods:{

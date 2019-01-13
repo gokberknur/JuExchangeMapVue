@@ -65,9 +65,13 @@
             </div>
 
             <FilterList 
-            :list="filteredUniList" 
-            :courses="availableCourses"
-            :packages="filteredPackageList"/>
+            :universities="filteredUniList" 
+            :coursePackage="coursePackage"
+            :packages="filteredPackageList"
+
+            :courses="courses"
+            :availableCourses="availableCourses"
+           />
             />
             
             
@@ -76,9 +80,6 @@
     </el-row>   
     
     <DetailView 
-            :list="filteredUniList" 
-            :courses="availableCourses"
-            :packages="filteredPackageList"
             
     />
     
@@ -155,6 +156,7 @@ export default {
       packages: [],
       universities: [],
       countries: [],
+      courses: [],
       countriesRestore :[],
       programmes:[],
       filteredUniList: [],
@@ -189,6 +191,10 @@ export default {
    
     /// add courses
     // http://localhost/exchange/public/api/courses
+
+    axios.get('http://localhost/exchange/public/api/courses')
+    .then(response =>(this.courses = response.data.data))
+
     axios.get('http://localhost/exchange/public/api/coursepackage')
     .then(response => (this.coursePackage= response.data.data))
 
