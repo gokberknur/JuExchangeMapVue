@@ -84,25 +84,8 @@
     />
     
 </div>       
-
 </template>
-<style>
- .courses-enter {
-   opacity: 0;
- } 
 
- .courses-enter-active{
-   transition: opacity 0.3s;
- }
-
- .courses-leave {
-
- }
- .courses-leave-active{
-   transition: opacity 0.3s;
-   opacity: 0;
- }
-</style>
 <script>
 
 
