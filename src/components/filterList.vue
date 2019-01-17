@@ -151,12 +151,12 @@
       height: 50px;
       border-radius: 25px;
       padding: 5px 10px;
-      background: #DDDDDD;
+      background: #fff;
       color: #522e69;
       text-align: center;
       font-weight: bold;
       box-shadow: 0px 0px 20px 0 rgba(0,0,0,0.4);
-      z-index: 99999;
+      z-index: 1;
     } 
 
     .added-filter{
