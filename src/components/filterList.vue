@@ -1,4 +1,5 @@
 <template>
+          
            <div class="filter-list-area">
               <div class="floating-item">Available Universities</div>
             <ul class="filter-list-item-area"> 
@@ -8,55 +9,51 @@
                   <span class="match_rating"><p>{{items.match_value}}</p></span>
                 </div>
                 <div class="filter-list-item-info" >
+                
                   <h3>{{items.partner_university}}</h3>
                   
-                  <button class="show-courses" v-on:click="showCourses(key)"> {{"Show Courses"}} <font-awesome-icon icon="angle-down" /></button>
-                    <div class="available-courses-box">
-                      <div class="available-courses" v-for="availableCoursesList in availableCourses" > 
-                        <div v-for="courseList in courses">
-                        <transition name="courses">  
-                          <div class="courses2" v-show="showMoreText[key]">              
-                          <p v-if="availableCoursesList.Pu_Id == items.pu_Id && courseList.Id == availableCoursesList.Course_Id">
-                            {{courseList.name}}                       
-                          </p>                         
-                          </div>
-                        </transition>
-                       </div>  
-                      </div>
-                    </div>
-                 
+                  <button class="show-details" @click="showCourses(key)"> {{"Show Details"}} </button>
+                  
+                  <div class="detail-view-container" :id="items.id" v-show="showMoreText[key]">
+                            <span class="detail-close" @click="showCourses(key)"></span>
+                            <div class="detial-view-uni_info">
+                            
+                                <h3 class="university-name">{{items.partner_university}}</h3>
+                                <span class="university-location">{{items.address}}</span>
+                                <img class="univeristy-img">
+                                <p><b>Academic Level:</b></p>
+                                <p><b>Contact:</b></p>
+                                <p><b>Webpage:</b></p>
+                            </div>
+                            <div class="detial-view-course-info">
+                                <div><h3>Available Courses</h3></div>
+                                    <div class="available-courses-box">
+                                      <div class="available-courses" v-for="availableCoursesList in availableCourses" > 
+                                        <div v-for="courseList in courses">
+                                        <transition name="courses">  
+                                          <div class="courses2" v-show="showMoreText[key]">  
 
-                  <button class="apply-button" v-on:click="applyButton(items,key)"> {{"Apply"}} </button>
-  
-                      
-                      
-                         
+                                            
+                                                          
+                                          <p v-if="availableCoursesList.Pu_Id == items.pu_Id && courseList.Id == availableCoursesList.Course_Id">
+                                            {{courseList.name}}                       
+                                          </p>                         
+                                          </div>
+                                        </transition>
+                                      </div>  
+                                      </div>
+                                    </div>
+                                    <button class="apply-button" v-on:click="applyButton(items,key)"> {{"Apply"}} </button>                                      
+                            </div>
+                    </div>                  
                  </div>
-               </li>
-               
+               </li>               
              </ul>
          </div>
          
 </template>
 
-
-<style>
- .courses-enter {
-   opacity: 0;
- } 
-
- .courses-enter-active{
-   transition: opacity 0.3s;
- }
-
- .courses-leave {
-
- }
- .courses-leave-active{
-   transition: opacity 0.3s;
-   opacity: 0;
- }
-</style>
+  
 <script>
 
   import testdata from '../App.vue'
@@ -156,7 +153,7 @@
       text-align: center;
       font-weight: bold;
       box-shadow: 0px 0px 20px 0 rgba(0,0,0,0.4);
-      z-index: 1;
+      z-index: 999;
     } 
 
     .added-filter{
@@ -224,7 +221,154 @@
             font-size: 18px;
           }
 
-          .show-courses{
+          .detail-view-container{
+            position: fixed;
+            display: flex;
+            flex-direction: row;
+            top: 50%;
+            left: 45%;
+            width: 50vw;
+            transform: translate(-50%, -50%);
+            height: 60vh;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.25);
+            transition: all 0.3s ease-in;
+
+            .detail-close {
+                position: absolute;
+                top: -12px;
+                right: -12px;
+                height: 35px;
+                width: 35px;
+                background-color: #fff;
+                border: solid 2px #fff;
+                border-radius: 50%;
+                    box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.25);
+                transition: transform ease-in-out .2s;
+                cursor: pointer;
+              }
+              .detail-close:hover {
+                transform: scale(1.1);
+              }
+                .detail-close:before,
+                .detail-close:after {
+                  position: absolute;
+                  top: 4px;
+                  left: 15px;   
+                  content: '';
+                  height: 24px;
+                  width: 2px;
+                  background-color: #774299;
+                }
+                .detail-close:before {
+                  transform: rotate(45deg);
+                }
+                .detail-close:after {
+                  transform: rotate(-45deg);
+                }
+
+            .detial-view-uni_info{
+              width: 39%;
+              height: 100%;
+              margin: 0 10px;
+              padding: 15px;
+              background-color: #fff;
+              border: solid 1px #dcdcdc;
+              border-radius:  8px;
+              z-index: 2;
+
+              &:hover{
+
+                box-shadow: 0px 0px 10px 0 rgba(0,0,0,0.5);
+              }
+
+                .university-name{
+                    font-size: 1vw;
+                    font-weight: 500;
+                    text-align: center;
+                }
+
+                .university-location{
+                    font-size: 0.8vw;
+                    font-weight: 200;
+                    text-align: center
+                }
+
+                .univeristy-img{
+                    width: 100%;
+                    height: 100px;
+                    background-color: grey;
+                    margin: 20px 0 30px 0;
+                }
+
+                p {
+                    font-size: 0.7vw;
+                    font-weight: normal;
+                    text-align: left;
+                    margin: 20px 0; 
+                }
+            }
+
+          }
+
+          .detial-view-course-info{
+            display: flex;
+            flex-direction: column; 
+            width: 61%;
+            height: 100%;
+            margin: 0 10px;
+            padding: 15px;
+            background-color: #fff;
+            border: solid 1px #dcdcdc;
+            border-radius:  8px;
+            z-index: 2;
+
+            &:hover{
+                box-shadow: 0px 0px 10px 0 rgba(0,0,0,0.5);
+            }
+
+            h3{
+                font-size: 1.2em;
+                font-weight: 500;
+                text-align: center;
+            }
+            .available-courses-box{
+                height: 90%;
+                width: 100%;
+                padding: 10px;
+                box-shadow: 
+                  inset 0px 11px 8px -10px #CCC,
+                  inset 0px -11px 8px -10px #CCC;  
+                overflow-y: scroll;  
+
+                  .available-courses{                    
+                    margin: 10px 13px;
+                    padding: 10px;
+                    width: 95%;
+                    height: 25%;
+                    background-color: #fff;
+                    border-radius: 5px;
+                    box-shadow: 0px 0px 10px 0 rgba(0,0,0,0.7);
+                    z-index: 3;
+
+                  .guest-univerity-course{
+                      font-size: 0.7em;
+                      font-weight: normal;
+                      text-align: left;
+                  }
+
+                  .home-univerity-course{
+                      font-size: 0.7em;
+                      font-weight: normal;
+                      text-align: left;
+                  }
+              }
+            }          
+        }
+
+          .show-details{
             border: none;
             background: none; 
             color: #262626;
@@ -259,10 +403,12 @@
 
           .apply-button{
             position: relative;
-            left: 175%;
+            left: 50%;
             height: 35px;
+            transform: translate(-50%);
             width: fit-content;
             padding: 5px 10px;
+            margin-top: 10px;
             background-color: #774299;
             border-radius: 3px;
             border: none;

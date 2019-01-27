@@ -617,7 +617,7 @@ export default {
           height: 300px;
           width: 100%;
           box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.25);
-          z-index: 2;
+          z-index: 99999999;
 
           &:before{
             content: "";
