@@ -178,7 +178,7 @@ export default {
     
     
     // API calls below
-    axios.get('http://localhost:8080/exchange/public/api/universities')
+    axios.get('http://localhost/exchange/public/api/universities')
     .then(response => (
         this.universities= response.data.data, 
         this.filteredUniList =response.data.data))
@@ -192,22 +192,22 @@ export default {
     /// add courses
     // http://localhost/exchange/public/api/courses
 
-    axios.get('http://localhost:8080/exchange/public/api/courses')
+    axios.get('http://localhost/exchange/public/api/courses')
     .then(response =>(this.courses = response.data.data))
 
-    axios.get('http://localhost:8080/exchange/public/api/coursepackage')
+    axios.get('http://localhost/exchange/public/api/coursepackage')
     .then(response => (this.coursePackage= response.data.data))
 
-    axios.get('http://localhost:8080/exchange/public/api/packages')
+    axios.get('http://localhost/exchange/public/api/packages')
     .then(response => (this.packages= response.data.data))
     
-     axios.get('http://localhost:8080/exchange/public/api/country')
+     axios.get('http://localhost/exchange/public/api/country')
     .then(response => (
       this.countries= response.data.data,
       this.countriesRestore = response.data.data
       ))
 
-     axios.get('http://localhost:8080/exchange/public/api/programmes')
+     axios.get('http://localhost/exchange/public/api/programmes')
     .then(response => (
           this.programmes= response.data.data,
           this.programmeDropdownMenu = response.data.data,

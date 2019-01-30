@@ -19,11 +19,18 @@
                             <div class="detial-view-uni_info">
                             
                                 <h3 class="university-name">{{items.partner_university}}</h3>
-                                <span class="university-location">{{items.address}}</span>
+                                <span class="university-location"></span>
                                 <img class="univeristy-img">
-                                <p><b>Academic Level:</b></p>
-                                <p><b>Contact:</b></p>
-                                <p><b>Webpage:</b></p>
+                                <p v-if=""><b>Address: </b> {{universities[key].address}}
+
+                                  <p><b>Country:</b> {{universities[key].country}}</p>
+                                  <p><b>Programme:</b>  {{items.programme}}</p>
+                                  <p><b>Programme Match Value:</b> {{items.match_value}}</p>
+                                  <p><b>Contact Info:</b>  to be added in DB</p>
+                                  <p><b>Webpage:</b>   to be added in DB</p>
+
+                                </p>
+                                
                             </div>
                             <div class="detial-view-course-info">
                                 <div><h3>Available Courses</h3></div>
@@ -77,7 +84,7 @@
           author: Object,
           testuni: Array,
           courses: Array,
-          university: Array,
+          universities: Array,
           packages: Array,
           availableCourses: Array,
           coursePackage: Array,
