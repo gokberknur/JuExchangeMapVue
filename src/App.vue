@@ -20,15 +20,17 @@
               :multiple="false"
               v-model="selectedStudyLevel"
               :options="studyLevelMenu"
+              @select="input_handler_programme"
               placeholder="select your level"
               label="level"               
              >
              </multiselect>
             <label class="filter-selection-area-header">Programme</label>
              <multiselect 
-              :multiple="true"
+              :multiple="false"
               v-model="selectedProgramme"
               :options="programmeDropdownMenu"
+              @select="input_handler_country"
               placeholder="select program"
               label="title" 
               track-by="title"
@@ -37,20 +39,22 @@
 
             <label class="filter-selection-area-header">Country</label>
              <multiselect 
-              :multiple="true"
+              :multiple="false"
               v-model="selectedCountry"
+              @select="input_handler_uni"
               :options="countries"
               placeholder="select country"
               label="country" 
-              track-by="country"            
+              track-by="country" 
+                   
              >
              </multiselect>
 
             <label class="filter-selection-area-header">University</label>
              <multiselect 
-              :multiple="true"
+              :multiple="false"
               v-model="selectedUniversity"
-              :options="universities"
+              :options="filteredUniList"
               placeholder="select Uni"
               label="name" 
               track-by="name"
@@ -59,21 +63,55 @@
              </multiselect>
              
             </div>
-            <FilterList :list="filteredUniList"/>
+
+            <FilterList 
+            :universities="filteredUniList" 
+            :coursePackage="coursePackage"
+            :packages="filteredPackageList"
+
+            :courses="courses"
+            :availableCourses="availableCourses"
+           />
+            />
+            
+            
           </div>  
         </el-col>
     </el-row>   
-    <DetailView/>
+    
+    <DetailView 
+            
+    />
     
 </div>       
 
 </template>
+<style>
+ .courses-enter {
+   opacity: 0;
+ } 
 
+ .courses-enter-active{
+   transition: opacity 0.3s;
+ }
+
+ .courses-leave {
+
+ }
+ .courses-leave-active{
+   transition: opacity 0.3s;
+   opacity: 0;
+ }
+</style>
 <script>
+
+
   import L from 'leaflet'
   import 'leaflet/dist/leaflet.css'
 
   
+ import _ from 'lodash';    
+
 
   
   //Components
@@ -96,15 +134,15 @@ L.Icon.Default.mergeOptions({
 export default {
   name: 'app',
   components:{
-    FilterList, Multiselect,
+    FilterList, Multiselect
   },
   data () {
     return {
-      selectedCountry: null,
-      selectedUniversity: null,
-      selectedProgramme: null,
-      selectedStudyLevel: null,
-
+      selectedCountry: [],
+      selectedUniversity: [],
+      selectedProgramme: [],
+      selectedStudyLevel: [],
+        showMoreText: [],
       
 
       studyLevelMenu: [{
@@ -113,16 +151,20 @@ export default {
 
       
       // defining required variables for API calls 
+      availableCourses: [],
       coursePackage: [],
       packages: [],
       universities: [],
       countries: [],
+      courses: [],
+      countriesRestore :[],
       programmes:[],
       filteredUniList: [],
+      filteredPackageList: [],
       programmeDropdownMenu: [],
       programmeDropdownMenuRestore: [],
       
-
+      //show: false,
       map: null,
       tileLayer: null,
       newdata: null,
@@ -136,8 +178,10 @@ export default {
     
     
     // API calls below
-    axios.get('http://localhost/exchange/public/api/universities')
-    .then(response => (this.universities= response.data.data, this.filteredUniList = this.universities))
+    axios.get('http://localhost:8080/exchange/public/api/universities')
+    .then(response => (
+        this.universities= response.data.data, 
+        this.filteredUniList =response.data.data))
       .then( addcords => {
       return this.addCoordsArray()
       })
@@ -145,26 +189,49 @@ export default {
       return this.addMarkers()
    })
    
-    
-    axios.get('http://localhost/exchange/public/api/coursepackage')
+    /// add courses
+    // http://localhost/exchange/public/api/courses
+
+    axios.get('http://localhost:8080/exchange/public/api/courses')
+    .then(response =>(this.courses = response.data.data))
+
+    axios.get('http://localhost:8080/exchange/public/api/coursepackage')
     .then(response => (this.coursePackage= response.data.data))
 
-    axios.get('http://localhost/exchange/public/api/packages')
+    axios.get('http://localhost:8080/exchange/public/api/packages')
     .then(response => (this.packages= response.data.data))
     
-     axios.get('http://localhost/exchange/public/api/country')
-    .then(response => (this.countries= response.data.data))
+     axios.get('http://localhost:8080/exchange/public/api/country')
+    .then(response => (
+      this.countries= response.data.data,
+      this.countriesRestore = response.data.data
+      ))
 
-     axios.get('http://localhost/exchange/public/api/programmes')
+     axios.get('http://localhost:8080/exchange/public/api/programmes')
     .then(response => (
           this.programmes= response.data.data,
           this.programmeDropdownMenu = response.data.data,
           this.programmeDropdownMenuRestore = response.data.data))
 
-    
+    this.input_handler_programme()
+    //this.addshow()
   },
 
   methods: {
+    applyButton(items, key){
+
+       // alert("you have applied to\n" + this.filteredPackageList[key].partner_university)
+
+    },
+    showCourses(index) {
+        /*
+          Adds a property to a reactive object, ensuring the new property is
+          also reactive, so triggers view updates.
+          https://vuejs.org/v2/api/#Vue-set
+         */
+        this.$set(this.showMoreText, index, ! this.showMoreText[index])
+      },
+    
     
         //without  coords object in array its not possible to add markes on map
         // so this function adds coords object and type attribute to our array which we get from universities api endpoint
@@ -184,7 +251,7 @@ export default {
 
     updateLevelSelection(){
             // This function filters course programme menu according to study level selection
-            let level = this.selectedStudyLevel.level;
+            let level = this.selectedStudyLevel.level;                    
             this.programmeDropdownMenu = [];
             this.programmes.forEach((programme) => {
                 if(programme.level == level){
@@ -193,29 +260,140 @@ export default {
             });
     },
 
-    applyFilters(valueOfSelectedCountry){
-        if(valueOfSelectedCountry ){
-         this.filteredUniList = [];
-        }
-        else{
-          this.filteredUniList = [];
-        }
-      
-      //we have to use arrow function here for using this keyword for accesing data.
-      // without arrow function "this" keyword won't work.
-          if(this.selectedCountry.length != 0) {
-            
-            this.selectedCountry.forEach((countryfilter) => {
-                this.universities.forEach((unielement) => {
-                  if(unielement.country == countryfilter.country) {
-                  this.filteredUniList.push(unielement)
-                  }
-                });
+    getMatchedCourses(filteredPackages){
+      // getting courses that related university provides
+      // matching filteredpackage list id with coursepackageid in here
+      this.availableCourses = []
+
+      filteredPackages.forEach((id) => {
+        this.coursePackage.forEach((coursePacks) => { 
+        if(id.Id == coursePacks.Package_Id)
+           this.availableCourses.push(coursePacks)
+           console.log(this.availableCourses.Course_name)
+           //console.log(coursePacks.Course_name)
+
+          });
+      });
+    },
+
+
+    // filtering university according to programme selection
+    // first step getting related packages and put into array called filteredPackageList
+    updateProgrammeSelection(){
+        this.filteredPackageList = [];
+             this.packages.forEach((pack) =>{
+            if(this.selectedProgramme.Id == pack.programme_Id){
+              this.filteredPackageList.push(pack)
+              }
+           });
+        //
+
+       
+        this.getMatchedCourses(this.filteredPackageList)
+        
+        
+
+
+    },
+   updateUniversityDropDownMenu(){
+    // updating university dropdown menu
+          
+          this.filteredPackageList.forEach((element) => {
+              this.universities.forEach((university) => {
+              if(university.Id == element.pu_Id){
+              this.filteredUniList.push(university)        
+              console.log(university.Id)
+              }
             });
-          }
-          else {
-        //show all ?
-          }
+         });
+   },
+
+   
+    
+    // input handlers for selections
+
+    // reset programme menu after level selection
+    input_handler_programme(){
+      this.$nextTick(() => {
+        	this.selectedProgramme = null
+          this.selectedUniversity = null
+          this.selectedCountry = null        
+        })
+    },
+    // reset country value after programme selection
+      input_handler_country(){
+        this.$nextTick(() => {
+        this.selectedCountry = null
+        this.selectedUniversity = null          
+        })
+      },
+
+      //reset uni value after country selection
+      input_handler_uni(){
+        // empty select university value after country selection
+          this.$nextTick(() => {
+        	this.selectedUniversity = null          
+        })
+
+      },
+      
+
+    applyFilter(){
+        this.filteredUniList = this.universities
+        
+        if(this.selectedProgramme != null){
+            this.updateProgrammeSelection()
+            this.getMatchedCourses(this.filteredPackageList)
+            
+            this.filteredUniList =[]
+            this.filteredPackageList.forEach((packages) => {
+              this.universities.forEach((university) => {
+                if(university.Id == packages.pu_Id){
+                this.filteredUniList.push(university)        
+                //console.log(university.Id)
+                }
+              })
+            })
+            
+            this.countries = this.filteredUniList.filter(el =>
+              el.country) 
+
+             
+              //removing duplicates thanks to lodash
+              this.countries = _.uniqBy(this.countries, 'country')
+             
+
+        }
+        if(this.selectedCountry != null){
+            
+           this.filteredUniList = this.filteredUniList.filter(el => 
+              this.selectedCountry.country ===  el.country ) 
+             
+
+              // FUCK YES
+              let newarray = this.filteredPackageList.filter( el => {
+                return this.filteredUniList.some(f => {
+                  return el.pu_Id === f.Id
+                })
+              })
+              this.filteredPackageList = newarray
+                
+        }
+
+        if(this.selectedUniversity != null) {
+          this.filteredUniList = this.filteredUniList.filter(el=>
+              el.name === this.selectedUniversity.name)
+              
+              // FUCK YES
+              let newarray = this.filteredPackageList.filter( el => {
+                return this.filteredUniList.some(f => {
+                  return el.pu_Id === f.Id
+                })
+              })
+              this.filteredPackageList = newarray
+        }
+        
+
     },
 
     addMarkers(){
@@ -223,20 +401,35 @@ export default {
         this.layerGroup.clearLayers() //Clears current layers on map (markers)
         this.filteredUniList.forEach((uni) => {
             if(uni.coords){ //if coords object(which is an array) exists in filteredUniList, run following
-            uni.leafletObject = L.marker(uni.coords) //Create marker for selected coordinates
+            uni.leafletObject = L.marker(uni.coords).on('click',  markerclick => {
+             console.log(uni.coords) 
+            }) //Create marker for selected coordinates
             .bindPopup(uni.name) //Adds popup attribute to Leaflet Object
-            this.layerGroup.addLayer(uni.leafletObject); // Adds layers to map (markers)
+            this.layerGroup.addLayer(uni.leafletObject)
+
+            
+             
+            // Adds layers to map (markers)
             }
         }); 
-       
+       //this.layerGroup.on('click',
+       //this.layerGroup.on('click', this.markerclick()) 
+
     },
    
-    initMap() {
+   markerclick(){
 
-      this.map = L.map('map').setView([38.63, -90.23], 3);
-      this.map.zoomControl.setPosition('bottomleft');
-      this.layerGroup = L.layerGroup([]);
-      this.map.addLayer(this.layerGroup);
+     console.log('hello marker clicked')
+     console.log()
+   },
+
+    initMap() {
+      this.map = L.map('map').setView([38.63, -90.23], 3)
+      this.map.zoomControl.setPosition('bottomleft')
+      this.layerGroup = L.featureGroup()
+      this.map.addLayer(this.layerGroup)
+
+      
       this.tileLayer = L.tileLayer(
         'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png',
         {
@@ -247,10 +440,23 @@ export default {
         
       this.tileLayer.addTo(this.map);
     },
+
+    
   },
   watch: {
         // Here we are checking if any filtering applied by user
+ filteredPackageList:
+        function(){
+        this.getMatchedCourses(this.filteredPackageList)
+        this.showMoreText =[]
 
+
+        },
+  filteredUniList:
+    function (){
+    this.addMarkers()
+
+    },
   selectedStudyLevel:
 
         function(){
@@ -258,32 +464,53 @@ export default {
               this.updateLevelSelection();
               }
               else{
+                this.programmeDropdownMenu = this.programmeDropdownMenuRestore
                 // reset programme selection menu
-                this.programmeDropdownMenu = this.programmeDropdownMenuRestore;
-                
+               
               }
         },
 
   selectedCountry: 
             
-            function(valueOfSelectedCountry){
+            function(){
             
             if(this.selectedCountry != null){
-            this.applyFilters(valueOfSelectedCountry);
-                      
-            //this.layerGroup.clearLayers();  
-            this.addMarkers();
-                  }
-            else  {
-              // show all unis maybe?
-              alert("something")
+              this.applyFilter()
             }
+            else {
+              this.applyFilter()
+             this.input_handler_uni()
 
-                  
-      //when selected country value changes, do the updates
-      // change universities for example, according to their countries.
+            }
       
   },
+
+
+  selectedProgramme: 
+       function () {
+          if(this.selectedProgramme !=null){
+            this.applyFilter()
+
+          }
+          else{
+            this.filteredPackageList =[]
+            this.countries = this.countriesRestore
+            this.applyFilter()
+            this.input_handler_programme()
+          }
+          
+
+
+       },
+  selectedUniversity:
+    function (){
+        if(this.selectedUniversity != null){
+        this.applyFilter()
+        }
+        else{
+          this.applyFilter()
+        }
+    },
   
 },
 }
@@ -378,8 +605,8 @@ export default {
         position: absolute;
         top: 5%;
         right: 5%;
-        max-width: 7%;
-        max-height: 7%;
+        max-width: 5%;
+        max-height: 5%;
       }
 
         .filter-selection-area{
@@ -390,6 +617,7 @@ export default {
           height: 300px;
           width: 100%;
           box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.25);
+          z-index: 2;
 
           &:before{
             content: "";
@@ -449,7 +677,85 @@ export default {
   .el-dropdown-menu__item:hover{
     background-color: #522e69 !important;
   }  
-  
+   .filter-list-area{
+    position: relative;
+    right: 0;
+    top: 0;
+    width: 100%;
+    height: 60%;
+    padding: 15px;
+    overflow-y: scroll;
+
+    .added-filter{
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;  
+      justify-content: space-between;
+      width: 100%;
+      height: 150px;
+      padding: 15px;
+      /*grid-template-columns: fit-content(400px) fit-content(400px) 1fr;*/
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0px 0px 41px -2px rgba(0,0,0,0.5);
+    }
+
+    .filter-list-item-area{
+      display: flex;
+      flex-direction: column;
+      /*overflow-y: scroll;*/
+      width: inherit;
+      padding: 0 30px 0 15px;
+      margin: 15px 0;
+      list-style-type: none;
+      
+      .filter-list-item{  
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: 120px;
+        padding: 10px;
+        margin: 15px 0;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0px 0px 20px 0 rgba(0,0,0,0.4);
+
+        &> div{
+
+            .fit_rating{
+            width: 30px;
+            height: 30px;
+            background-color: #888;
+          }
+        }
+        .filter-list-item-info{
+          text-align: left;
+          padding-left: 5px;
+          
+          h3{
+            font-weight: bold;
+            font-size: 18px;
+          }
+        }
+      }
+    }
+
+  }
+
+   /*Custom Element UI */ 
+  .el-tag{
+    border-radius: 15px;
+    background-color: #774299 !important;
+    border:none;
+    color: #fff;
+
+    .el-icon-close{
+      color:#fff !important;
+    }
+    .el-icon-close:hover{
+      background-color: #522e69 !important;
+    }
+  }
  
   
 </style>
